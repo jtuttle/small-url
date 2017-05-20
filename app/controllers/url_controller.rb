@@ -1,6 +1,4 @@
 class UrlController < ApplicationController
-  skip_before_action :verify_authenticity_token
-  
   def create
     small_url = Physical::SmallUrl.create(original_url: params[:url])
     url_token = Logical::UrlTokenEncoder.new.encode(small_url.id.to_s)
