@@ -2,7 +2,7 @@ class UrlController < ApplicationController
   def create
     small_url = Physical::SmallUrl.create(original_url: params[:url])
     url_token = Logical::UrlTokenEncoder.new.encode(small_url.id.to_s)
-    render json: { token: url_token }
+    render json: { url: "#{request.base_url}/#{url_token}" }
   end
 
   def show
