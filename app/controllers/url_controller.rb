@@ -17,6 +17,5 @@ class UrlController < ApplicationController
     small_url.increment!(:visit_count)
 
     redirect_to small_url.original_url
-#    render json: { url: small_url.original_url }
   end
 end
