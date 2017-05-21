@@ -1,24 +1,29 @@
 class UrlController < ApplicationController
   def index
-    owner_id = params[:owner_identifier]
-    
-    @urls =
-      Physical::SmallUrl.
-      where(owner_identifier: owner_id).
-      order(created_at: :desc)
+    owner =
+      Physical::Owner.
+      find_or_create_by(external_identifier: params[:owner_identifier])
 
-    render 'urls/index.json.jbuilder'
+    if owner.nil?
+      render json: { error: "Invalid owner." }, status: 422
+    else
+      @urls = owner.small_urls.order(created_at: :desc)
+      render 'urls/index.json.jbuilder'
+    end
   end
   
   def create
     url = params[:url]
-    owner_id = params[:owner_identifier]
+
+    owner =
+      Physical::Owner.
+      find_or_create_by(external_identifier: params[:owner_identifier])
 
     if Logical::UrlValidator.new(url).valid?
       small_url =
         Physical::SmallUrl.
-        create(original_url: url, owner_identifier: owner_id)
-      
+        create({ original_url: url, owner_id: owner.id })
+
       url_token = Logical::UrlTokenEncoder.new.encode(small_url.id.to_s)
       
       render json: { url: "#{request.base_url}/#{url_token}" }
