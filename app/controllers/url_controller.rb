@@ -1,14 +1,20 @@
 class UrlController < ApplicationController
   def index
-    @urls = Physical::SmallUrl.all.order(:created_at)
+    @urls = Physical::SmallUrl.all.order(created_at: :desc)
 
     render 'urls/index.json.jbuilder'
   end
   
   def create
-    small_url = Physical::SmallUrl.create(original_url: params[:url])
-    url_token = Logical::UrlTokenEncoder.new.encode(small_url.id.to_s)
-    render json: { url: "#{request.base_url}/#{url_token}" }
+    url = params[:url]
+
+    if Logical::UrlValidator.new(url).valid?
+      small_url = Physical::SmallUrl.create(original_url: url)
+      url_token = Logical::UrlTokenEncoder.new.encode(small_url.id.to_s)
+      render json: { url: "#{request.base_url}/#{url_token}" }
+    else
+      render json: { error: "Invalid URL." }, status: 422
+    end
   end
 
   def show
