@@ -15,7 +15,6 @@ class UrlController < ApplicationController
     owner_id = params[:owner_identifier]
 
     if Logical::UrlValidator.new(url).valid?
-      binding.pry
       small_url =
         Physical::SmallUrl.
         create(original_url: url, owner_identifier: owner_id)
