@@ -1,6 +1,6 @@
 class UrlController < ApplicationController
   def index
-    @urls = Physical::SmallUrl.all
+    @urls = Physical::SmallUrl.all.order(:created_at)
 
     render 'urls/index.json.jbuilder'
   end
