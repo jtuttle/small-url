@@ -16,12 +16,16 @@ ActiveRecord::Schema.define(version: 20170520182345) do
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
 
+  create_table "owners", force: :cascade do |t|
+    t.uuid "external_identifier", null: false
+  end
+
   create_table "small_urls", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "original_url"
     t.integer "visit_count", default: 0
-    t.uuid "owner_identifier", null: false
+    t.integer "owner_id"
   end
 
 end
