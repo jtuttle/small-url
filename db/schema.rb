@@ -26,6 +26,8 @@ ActiveRecord::Schema.define(version: 20170520182345) do
     t.text "original_url"
     t.integer "visit_count", default: 0
     t.integer "owner_id"
+    t.boolean "disabled", default: false
+    t.uuid "public_identifier", default: -> { "uuid_generate_v4()" }
   end
 
 end

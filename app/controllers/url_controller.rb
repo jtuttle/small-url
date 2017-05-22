@@ -25,10 +25,26 @@ class UrlController < ApplicationController
         create({ original_url: url, owner_id: owner.id })
 
       url_token = Logical::UrlTokenEncoder.new.encode(small_url.id.to_s)
-      
+     
       render json: { url: "#{request.base_url}/#{url_token}" }
     else
       render json: { error: "Invalid URL." }, status: 422
+    end
+  end
+
+  def destroy
+    small_url =
+      Physical::SmallUrl.
+      find_by(public_identifier: params[:url_identifier])
+
+    if small_url.nil?
+      render json: { error: "Invalid token." }, status: 422
+    else
+      if small_url.update_attribute(:disabled, true)
+        render json: {}, status: 200
+      else
+        render json: { error: "Failed to disable URL." }, status: 422
+      end
     end
   end
 
@@ -36,7 +52,7 @@ class UrlController < ApplicationController
     key = Logical::UrlTokenEncoder.new.decode(params[:token])
     small_url = Physical::SmallUrl.find_by(id: key.to_i)
 
-    if small_url.nil?
+    if small_url.nil? || small_url.disabled?
       raise ActionController::RoutingError.new('Not Found')
     end
 
