@@ -24,6 +24,7 @@ ActiveRecord::Schema.define(version: 20170520182345) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "original_url"
+    t.text "salt"
     t.integer "visit_count", default: 0
     t.integer "owner_id"
     t.boolean "disabled", default: false
