@@ -20,9 +20,12 @@ class UrlController < ApplicationController
       find_or_create_by(external_identifier: params[:owner_identifier])
 
     if Logical::UrlValidator.new(url).valid?
+      salt = ('a'..'z').to_a.shuffle[0,8].join
+      encrypted_url = Logical::UrlEncryptor.new(salt).encrypt(url)
+      
       small_url =
         Physical::SmallUrl.
-        create({ original_url: url, owner_id: owner.id })
+        create({ original_url: encrypted_url, salt: salt, owner_id: owner.id })
 
       url_token = Logical::UrlTokenEncoder.new.encode(small_url.id.to_s)
      
