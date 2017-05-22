@@ -8,12 +8,12 @@ class CreateOwnersAndSmallUrlsTables < ActiveRecord::Migration[5.1]
     
     create_table(:small_urls) do |t|
       t.timestamps
-      t.text :original_url, null: :no
-      t.text :salt, null: :no
-      t.integer :visit_count, null: :no, default: 0
-      t.integer :owner_id, references: [:owners]
-      t.boolean :disabled, null: :no, default: false
       t.uuid :public_identifier, null: :false, default: 'uuid_generate_v4()'
+      t.text :encrypted_url, null: :no
+      t.text :salt, null: :no
+      t.integer :owner_id, references: [:owners]
+      t.integer :visit_count, null: :no, default: 0
+      t.boolean :disabled, null: :no, default: false
     end
   end
   

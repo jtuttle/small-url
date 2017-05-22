@@ -25,7 +25,7 @@ class UrlController < ApplicationController
       
       small_url =
         Physical::SmallUrl.
-        create({ original_url: encrypted_url, salt: salt, owner_id: owner.id })
+        create({ encrypted_url: encrypted_url, salt: salt, owner_id: owner.id })
 
       url_token = Logical::UrlTokenEncoder.new.encode(small_url.id.to_s)
      
@@ -62,6 +62,11 @@ class UrlController < ApplicationController
     # TODO: This does not handle concurrency, but works for now.
     small_url.increment!(:visit_count)
 
-    redirect_to small_url.original_url
+    original_url =
+      Logical::UrlEncryptor.
+      new(small_url.salt).
+      decrypt(small_url.encrypted_url)
+    
+    redirect_to original_url
   end
 end
