@@ -23,12 +23,12 @@ ActiveRecord::Schema.define(version: 20170520182345) do
   create_table "small_urls", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.text "original_url"
-    t.text "salt"
-    t.integer "visit_count", default: 0
-    t.integer "owner_id"
-    t.boolean "disabled", default: false
     t.uuid "public_identifier", default: -> { "uuid_generate_v4()" }
+    t.text "encrypted_url"
+    t.text "salt"
+    t.integer "owner_id"
+    t.integer "visit_count", default: 0
+    t.boolean "disabled", default: false
   end
 
 end
