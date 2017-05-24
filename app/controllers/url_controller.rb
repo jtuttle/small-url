@@ -9,7 +9,7 @@ class UrlController < ApplicationController
               find_or_create_by(external_identifier: params[:owner_identifier])
     end
     
-    @urls = small_urls.find_by(owner_id: owner.try(:id))
+    @urls = Physical::SmallUrl.where(owner_id: owner.try(:id))
     render 'urls/index.json.jbuilder'
   end
 
