@@ -28,6 +28,7 @@ gem 'jbuilder', '~> 2.5'
 
 gem 'bases', "~> 1.0.1"
 gem 'rack-cors', '~> 0.4.1'
+gem 'apipie-rails', '~> 0.5.1'
 
 group :development, :test do
   gem 'pry-rails', '~> 0.3.6'

@@ -1,17 +1,22 @@
 class UrlController < ApplicationController
+  api :GET, "/urls", "Returns a list of the user's URLs"
+  param :owner_identifier, Logical::Uuid.regexp, "UUID identifer for the owner of the URL."
   def index
-    owner =
-      Physical::Owner.
-      find_or_create_by(external_identifier: params[:owner_identifier])
-
-    if owner.nil?
-      render json: { error: "Invalid owner." }, status: 422
-    else
-      @urls = owner.small_urls.order(created_at: :desc)
-      render 'urls/index.json.jbuilder'
+    owner = nil
+    
+    if params[:owner_identifier].present?
+      owner = Physical::Owner.
+              find_or_create_by(external_identifier: params[:owner_identifier])
     end
+    
+    @urls = small_urls.find_by(owner_id: owner.try(:id))
+    render 'urls/index.json.jbuilder'
   end
-  
+
+  api :POST, "/url/create", "Creates a new small URL."
+  param :url, String, "The URL to be shortened.", required: true
+  param :owner_identifier, Logical::Uuid.regexp, "UUID identifer for the owner of the URL."
+  error 422, "Invalid URL format."
   def create
     url = params[:url]
 
@@ -35,13 +40,17 @@ class UrlController < ApplicationController
     end
   end
 
+  api :DELETE, "/url/:url_identifier", "Disables the specified URL."
+  param :url_identifier, Logical::Uuid.regexp, "The UUID identifier of the URL."
+  error 422, "The url_identifier does not match any known small URLs."
+  error 422, "Unable to disable the URL."
   def destroy
     small_url =
       Physical::SmallUrl.
       find_by(public_identifier: params[:url_identifier])
 
     if small_url.nil?
-      render json: { error: "Invalid token." }, status: 422
+      render json: { error: "Invalid URL identifier." }, status: 422
     else
       if small_url.update_attribute(:disabled, true)
         render json: {}, status: 200
@@ -51,6 +60,9 @@ class UrlController < ApplicationController
     end
   end
 
+  api :GET, "/:token", "Redirect to the URL that matches the provided token."
+  param :token, String, "A small URL token."
+  error 404, "The token does not match a known small URL or the small URL is disabled."
   def show
     key = Logical::UrlTokenEncoder.new.decode(params[:token])
     small_url = Physical::SmallUrl.find_by(id: key.to_i)
