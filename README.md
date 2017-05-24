@@ -4,7 +4,7 @@ Small URL is a standalone API-only Rails app that can be used to generate and vi
 
 ## Features
 
-* Verifies that the provided long URL returns a non-404 response before creating a short URL.
+* Verifies that the provided long URL is well-formed and returns a non-404 response before creating a short URL.
 
 * Maintains a visit count for each URL.
 

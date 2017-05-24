@@ -26,7 +26,7 @@ gem 'jbuilder', '~> 2.5'
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
-gem 'bases', "~> 1.0.1"
+gem 'bases', '~> 1.0.1'
 gem 'rack-cors', '~> 0.4.1'
 gem 'apipie-rails', '~> 0.5.1'
 
@@ -41,6 +41,11 @@ end
 
 group :development do
 
+end
+
+group :test do
+  gem 'rspec-rails', '~> 3.6.0'
+  gem 'factory_girl_rails', '~> 4.8.0'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
