@@ -18,7 +18,7 @@ module Logical
     end
 
     def safety_valid?
-      safety_service.is_safe?(@url)
+      @safety_service.is_safe?(@url)
     end
 
     def response_valid?
