@@ -15,7 +15,10 @@ class UrlController < ApplicationController
       raise Exceptions::InvalidOwnerIdentifierError if owner.nil?
     end
     
-    @urls = Physical::SmallUrl.where(owner_id: owner.try(:id))
+    @urls =
+      Physical::SmallUrl.
+        where(owner_id: owner.try(:id)).
+        order(created_at: :desc)
     
     render 'urls/index.json.jbuilder'
   rescue Exceptions::InvalidOwnerIdentifierError => e
