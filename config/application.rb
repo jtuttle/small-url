@@ -23,5 +23,7 @@ module SmallUrl
         resource '*', headers: :any, methods: [:get, :post, :options, :delete]
       end
     end
+
+    config.eager_load_paths += %W(#{config.root}/lib)
   end
 end

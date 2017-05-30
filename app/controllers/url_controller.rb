@@ -18,28 +18,18 @@ class UrlController < ApplicationController
   param :owner_identifier, Logical::Uuid.regexp, "UUID identifer for the owner of the URL."
   error 422, "Invalid URL format."
   def create
-    url = params[:url]
+    small_url =
+      Logical::UrlCreator.new(params[:url], params[:owner_identifier]).create
 
-    owner =
-      Physical::Owner.
-      find_or_create_by(external_identifier: params[:owner_identifier])
+    raise Exceptions::UrlCreationFailedError if small_url.nil?
     
-    safety_service = Remote::GoogleSafeBrowsingService.new
-
-    if Logical::UrlValidator.new(url, safety_service).valid?
-      salt = ('a'..'z').to_a.shuffle[0,8].join
-      encrypted_url = Logical::UrlEncryptor.new(salt).encrypt(url)
-      
-      small_url =
-        Physical::SmallUrl.
-        create({ encrypted_url: encrypted_url, salt: salt, owner_id: owner.id })
-
-      url_token = Logical::UrlTokenEncoder.new.encode(small_url.id.to_s)
-     
-      render json: { url: "#{request.base_url}/#{url_token}" }
-    else
-      render json: { error: "Invalid URL." }, status: 422
-    end
+    render json: { url: "#{request.base_url}/#{small_url.token}" }
+  rescue Exceptions::InvalidUrlError, Exceptions::UrlCreationFailedError => e
+    log_error(e)
+    render json: { error: e.message }, status: 422
+  rescue StandardError => e
+    log_error(e)
+    render json: { error: "Unable to create small URL." }, status: 500
   end
 
   api :DELETE, "/url/:url_identifier", "Disables the specified URL."
@@ -82,5 +72,12 @@ class UrlController < ApplicationController
       decrypt(small_url.encrypted_url)
     
     redirect_to original_url
+  end
+
+  private
+  
+  def log_error(e)
+    puts e.to_s
+    # Send error to logging service and/or bugtracking service
   end
 end
