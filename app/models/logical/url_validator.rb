@@ -2,12 +2,13 @@ require 'net/http'
 
 module Logical
   class UrlValidator
-    def initialize(url)
+    def initialize(url, safety_service)
       @url = URI.parse(url)
+      @safety_service = safety_service
     end
 
     def valid?
-      format_valid? && response_valid?
+      format_valid? && safety_valid? && response_valid?
     end
 
     private
@@ -16,7 +17,12 @@ module Logical
       !@url.host.nil?
     end
 
+    def safety_valid?
+      safety_service.is_safe?(@url)
+    end
+
     def response_valid?
+      # TODO: Update this to use RestClient.
       begin
         request = Net::HTTP.new(@url.host, @url.port)
         request.use_ssl = (@url.scheme == 'https')

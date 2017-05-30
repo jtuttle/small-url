@@ -23,8 +23,10 @@ class UrlController < ApplicationController
     owner =
       Physical::Owner.
       find_or_create_by(external_identifier: params[:owner_identifier])
+    
+    safety_service = Remote::GoogleSafeBrowsingService.new
 
-    if Logical::UrlValidator.new(url).valid?
+    if Logical::UrlValidator.new(url, safety_service).valid?
       salt = ('a'..'z').to_a.shuffle[0,8].join
       encrypted_url = Logical::UrlEncryptor.new(salt).encrypt(url)
       
