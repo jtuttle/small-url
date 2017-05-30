@@ -1,5 +1,5 @@
 class UrlController < ApplicationController
-  api :GET, "/urls", "Returns a list of the user's URLs"
+  api :GET, "/urls", "Returns a list of small URLs for the given owner."
   param :owner_identifier, Logical::Uuid.regexp, "UUID identifer for the owner of the URL."
   def index
     owner = nil
