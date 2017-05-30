@@ -16,7 +16,7 @@ module Logical
         
         small_url =
           Physical::SmallUrl.
-            create({ encrypted_url: encrypted_url, salt: salt, owner_id: owner.id })
+            create!({ encrypted_url: encrypted_url, salt: salt, owner_id: owner.id })
 
         small_url
       else

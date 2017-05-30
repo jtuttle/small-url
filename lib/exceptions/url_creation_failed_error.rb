@@ -1,7 +1,7 @@
 module Exceptions
   class UrlCreationFailedError < StandardError
     def message
-      "URL creation failed."
+      "Unable to create small URL."
     end
   end
 end
