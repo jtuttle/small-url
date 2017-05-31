@@ -19,6 +19,8 @@ module Logical
     end
 
     def key
+      # TODO: Use an awesome key management platform like Conjur
+      # here instead of Rails' secret_key_base.
       ActiveSupport::KeyGenerator.
         new(Rails.application.secrets.secret_key_base).
         generate_key(@salt, 32)
