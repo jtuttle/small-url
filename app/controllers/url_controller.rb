@@ -1,5 +1,26 @@
 class UrlController < ApplicationController
   rescue_from Apipie::ParamInvalid, with: :render_apipie_param_error
+
+  api :POST, "/url/create", "Creates a new small URL."
+  param :url, String, "The URL to be shortened.", required: true
+  param :owner_identifier, Logical::Uuid.regexp, "UUID identifer for the owner of the URL."
+  error 422, "Invalid URL."
+  def create
+    safe_browsing_service = Remote::GoogleSafeBrowsingService.new
+    
+    url_validator =
+      Logical::UrlValidator.new(params[:url], request.host, safe_browsing_service)
+    
+    raise Exceptions::InvalidUrlError unless url_validator.valid?
+    
+    small_url =
+      Logical::UrlCreator.new(params[:url], params[:owner_identifier]).create
+
+    render json: { url: "#{request.base_url}/#{small_url.token}" }
+  rescue Exceptions::InvalidUrlError, Exceptions::UrlCreationFailedError => e
+    log_error(e)
+    render json: { error: e.message }, status: 422
+  end
   
   api :GET, "/urls", "Returns a list of small URLs for the given owner."
   param :owner_identifier, Logical::Uuid.regexp, "UUID identifer for the owner of the URL."
@@ -22,27 +43,6 @@ class UrlController < ApplicationController
     
     render 'urls/index.json.jbuilder'
   rescue Exceptions::InvalidOwnerIdentifierError => e
-    log_error(e)
-    render json: { error: e.message }, status: 422
-  end
-
-  api :POST, "/url/create", "Creates a new small URL."
-  param :url, String, "The URL to be shortened.", required: true
-  param :owner_identifier, Logical::Uuid.regexp, "UUID identifer for the owner of the URL."
-  error 422, "Invalid URL."
-  def create
-    safe_browsing_service = Remote::GoogleSafeBrowsingService.new
-    
-    url_validator =
-      Logical::UrlValidator.new(params[:url], request.host, safe_browsing_service)
-    
-    raise Exceptions::InvalidUrlError unless url_validator.valid?
-    
-    small_url =
-      Logical::UrlCreator.new(params[:url], params[:owner_identifier]).create
-
-    render json: { url: "#{request.base_url}/#{small_url.token}" }
-  rescue Exceptions::InvalidUrlError, Exceptions::UrlCreationFailedError => e
     log_error(e)
     render json: { error: e.message }, status: 422
   end
