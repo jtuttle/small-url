@@ -26,8 +26,7 @@ module Remote
         },
         "threatInfo" => {
           "threatTypes" => threat_types,
-          # TODO: determine platform from user-agent?
-          "platformTypes" => ["OSX"],
+          "platformTypes" => ["ANY_PLATFORM"],
           "threatEntryTypes" => ["URL"],
           "threatEntries" => [
             { "url" => url }
