@@ -31,6 +31,13 @@ class UrlController < ApplicationController
   param :owner_identifier, Logical::Uuid.regexp, "UUID identifer for the owner of the URL."
   error 422, "Invalid URL."
   def create
+    safe_browsing_service = Remote::GoogleSafeBrowsingService.new
+    
+    url_validator =
+      Logical::UrlValidator.new(params[:url], request.host, safe_browsing_service)
+    
+    raise Exceptions::InvalidUrlError unless url_validator.valid?
+    
     small_url =
       Logical::UrlCreator.new(params[:url], params[:owner_identifier]).create
 
@@ -83,7 +90,7 @@ class UrlController < ApplicationController
   end
 
   private
-  
+
   def log_error(e)
     Rails.logger.error(e.message)
     
