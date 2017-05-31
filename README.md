@@ -4,16 +4,18 @@ Small URL is a standalone API-only Rails app that can be used to generate and vi
 
 ## Features
 
-* Verifies long URL format and response before creating a small URL.
-
 * Maintains a visit count for each URL.
-
-* Ability to permanently disable small URLs to prevent further visits.
 
 * Optionally specify a UUID to associate a URL with an owner.
 
-* Salts and encrypts original URLs before inserting into the database for enhanced user privacy.
+* Ability to permanently disable small URLs to prevent further visits.
+
+* Verifies long URL format and response before creating a small URL.
+
+* Integration with Google Safe Browsing API for malware protection.
+
+* Salts and encrypts long URLs before inserting into the database for enhanced user privacy.
 
 * Apipie documentation and parameter validation.
 
-* Alphabet includes numbers and lowercase letters (minus vowels) for profanity protection and easier memorization.
+* Vowels excluded from token alphabet for profanity protection.
