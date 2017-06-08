@@ -103,7 +103,7 @@ class UrlController < ApplicationController
   def log_error(e)
     Rails.logger.error(e.message)
     
-    # TODO: Send error to logging service and/or bugtracking service
+    # TODO: Send error to logging service and/or bug tracker
   end
 
   # Prevent Apipie param errors from including backtrace in the error response.

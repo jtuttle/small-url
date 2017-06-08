@@ -2,10 +2,11 @@ module Remote
   class GoogleSafeBrowsingService
     def are_safe?(urls)
       response = RestClient.post(lookup_api_url, payload(urls), headers)
+      binding.pry
       response.code == 200 && JSON.parse(response.body).empty?
     rescue
       # This prevents Safe Browsing API hiccups from disabling Small URL.
-      # call bugtracker
+      # TODO: log or call bug tracker here to have visibility on errors.
       true
     end
 
