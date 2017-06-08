@@ -6,15 +6,23 @@ class UrlController < ApplicationController
   param :owner_identifier, Logical::Uuid.regexp, "UUID identifer for the owner of the URL."
   error 422, "Invalid URL."
   def create
+    url = params[:url]
+
+    # Assume http if no protocol given
+    url = "http://#{url}" if URI(url).scheme.nil?
+
+    raise Exceptions::InvalidUrlError if
+      !Logical::Validators::UrlHost.valid?(url, request.host) ||
+      !Logical::Validators::UrlFormat.valid?(url)
+    
+    url_chain = Logical::UrlRedirectFollower.new(url).follow
     safe_browsing_service = Remote::GoogleSafeBrowsingService.new
-    
-    url_validator =
-      Logical::UrlValidator.new(params[:url], request.host, safe_browsing_service)
-    
-    raise Exceptions::InvalidUrlError unless url_validator.valid?
+
+    raise Exceptions::InvalidUrlError if
+      !Logical::Validators::UrlSafety.valid?(url_chain, safe_browsing_service)
     
     small_url =
-      Logical::UrlCreator.new(params[:url], params[:owner_identifier]).create
+      Logical::UrlCreator.new(url_chain.last, params[:owner_identifier]).create
 
     render json: { url: "#{request.base_url}/#{small_url.token}" }
   rescue Exceptions::InvalidUrlError, Exceptions::UrlCreationFailedError => e
@@ -82,7 +90,8 @@ class UrlController < ApplicationController
       Logical::UrlEncryptor.
       new(small_url.salt).
       decrypt(small_url.encrypted_url)
-    
+
+    # FTP broken!
     redirect_to original_url
   rescue Exceptions::InvalidUrlTokenError, Exceptions::UrlDisabledError, StandardError => e
     log_error(e)

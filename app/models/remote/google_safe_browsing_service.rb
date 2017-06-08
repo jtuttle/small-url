@@ -1,10 +1,11 @@
 module Remote
   class GoogleSafeBrowsingService
-    def is_safe?(url)
-      response = RestClient.post(lookup_api_url, payload(url), headers)
+    def are_safe?(urls)
+      response = RestClient.post(lookup_api_url, payload(urls), headers)
       response.code == 200 && JSON.parse(response.body).empty?
     rescue
       # This prevents Safe Browsing API hiccups from disabling Small URL.
+      # call bugtracker
       true
     end
 
@@ -18,7 +19,7 @@ module Remote
       ENV['GOOGLE_SAFE_BROWSING_API_KEY']
     end
     
-    def payload(url)
+    def payload(urls)
       {
         "client" => {
           "clientId" => "small_url",
@@ -28,9 +29,7 @@ module Remote
           "threatTypes" => threat_types,
           "platformTypes" => ["ANY_PLATFORM"],
           "threatEntryTypes" => ["URL"],
-          "threatEntries" => [
-            { "url" => url }
-          ]
+          "threatEntries" => urls.map { |url| { "url" => url } }
         }
       }.to_json
     end
