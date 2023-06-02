@@ -1,0 +1,50 @@
+/*
+TODO: Use a smarter CSS system like bootstrap-sass
+*/
+
+th, td {
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+form {
+    padding-left: 40px;
+}
+
+.form-input {
+    margin-bottom: 20px;
+}
+
+#error-div {
+    padding-top: 10px;
+    padding-left: 40px;
+}
+
+#sign-up-div {
+    padding-top: 10px;
+    padding-left: 40px;
+}
+
+#welcome-span {
+    padding-left: 40px;
+}
+
+#logout-button {
+    padding-top: 10px;
+    padding-left: 20px;
+}
+
+#url-creator {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#create-url-input {
+    width: 200px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#create-done-message-div {
+    padding-left: 40px;
+}
